@@ -5,10 +5,10 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import api, { extractApiError } from '@src/utils/axios_api'
 
 import mainLogo from '@assets/images/logo-white.png'
 import backgroundImg from '@assets/images/others/auth.jpg'
-import google from '@assets/images/others/google.png'
 import { Eye, EyeOff } from 'lucide-react'
 
 type AlertType = 'bg-red-100 text-red-500' | 'bg-green-100 text-green-500'
@@ -37,41 +37,20 @@ const SigninBasic: React.FC = () => {
 
   const router = useRouter()
 
-  const allowedCredentials = {
-    adminEmail: 'admin@example.com',
-    adminPassword: 'admin@123',
-    userEmail: 'user@example.com',
-    userPassword: 'user@123',
-  }
-
-  const validateForm = (e: React.FormEvent) => {
+  const validateForm = async (e: React.FormEvent) => {
     e.preventDefault()
     setAlert({ ...alert, isVisible: false, message: '' })
-
-    // Check if the form data matches either the admin or user credentials
-    const isAdminValid =
-      formData.email === allowedCredentials.adminEmail &&
-      formData.password === allowedCredentials.adminPassword
-    const isUserValid =
-      formData.email === allowedCredentials.userEmail &&
-      formData.password === allowedCredentials.userPassword
-
-    if (!isAdminValid && !isUserValid) {
-      // Show an alert if neither admin nor user credentials are correct
-      showAlert('Invalid email or password', 'bg-red-100 text-red-500')
-      return
+    try {
+      const payload = { email: formData.email, password: formData.password }
+      await api.post('/auth/signin', payload)
+      showAlert('Welcome back!', 'bg-green-100 text-green-500')
+      setTimeout(() => {
+        router.push('/dashboards/ecommerce')
+      }, 600)
+    } catch (err) {
+      const { message } = extractApiError(err)
+      showAlert(message || 'Invalid credentials', 'bg-red-100 text-red-500')
     }
-
-    // If either the admin or user credentials are correct
-    showAlert(
-      "You've successfully signed in to Domiex!",
-      'bg-green-100 text-green-500'
-    )
-
-    // Redirect to the dashboard after a short delay
-    setTimeout(() => {
-      router.push('/dashboards/ecommerce')
-    }, 1000)
   }
 
   const showAlert = (message: string, type: AlertType) => {
@@ -113,10 +92,10 @@ const SigninBasic: React.FC = () => {
                 </Link>
               </div>
               <h4 className="mb-2 leading-relaxed text-center text-white">
-                Welcome Back, Sofia!
+                Welcome Back
               </h4>
               <p className="mb-5 text-center text-white/75">
-                Don&apos;t have an account?
+                Don&apos;t have an account?{' '}
                 <Link
                   href="/auth/signup-modern"
                   className="font-medium text-white">
@@ -138,15 +117,15 @@ const SigninBasic: React.FC = () => {
                 <div className="grid grid-cols-12 gap-5 mb-5 items-center">
                   <div className="col-span-12">
                     <label htmlFor="email" className="form-label text-white/75">
-                      Email Or Username
+                      Email
                     </label>
                     <input
-                      type="text"
+                      type="email"
                       id="email"
                       value={formData.email}
                       onChange={handleInputChange}
                       className="text-white border-none form-input bg-white/10 placeholder:text-white/75"
-                      placeholder="Enter your email or username"
+                      placeholder="Enter your email"
                     />
                   </div>
                   <div className="col-span-12">
@@ -207,51 +186,7 @@ const SigninBasic: React.FC = () => {
                 </div>
               </form>
 
-              <p className="relative my-5 text-center text-white/75">OR</p>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="w-full border-white/10 text-white/75 btn hover:bg-white/10 hover:text-white">
-                  <Image
-                    src={google}
-                    alt="google"
-                    className="inline-block h-4 ltr:mr-1 rtl:ml-1"
-                    style={{ width: '16px', height: '16px' }}
-                  />
-                  SignIn Via Google
-                </button>
-                <button
-                  type="button"
-                  className="w-full border-white/10 text-white/75 btn hover:bg-white/10 hover:text-white">
-                  <i className="ri-facebook-fill text-[14px] inline-block ltr:mr-1 rtl:ml-1 size-4 text-primary-500"></i>
-                  SignIn Via Facebook
-                </button>
-              </div>
-              <div className="flex items-center gap-3 mt-5">
-                <div className="grow">
-                  <h6 className="mb-1 text-white">Admin</h6>
-                  <p className="text-white/75">Email: admin@example.com</p>
-                  <p className="text-white/75">Password: admin@123</p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleAdminLogin}>
-                  Login
-                </button>
-              </div>
-              <div className="flex items-center gap-3 mt-3">
-                <div className="grow">
-                  <h6 className="mb-1 text-white">Users</h6>
-                  <p className="text-white/75">Email: user@example.com</p>
-                  <p className="text-white/75">Password: user@123</p>
-                </div>
-                <button
-                  className="shrink-0 btn btn-sub-gray"
-                  onClick={handleGuestLogin}>
-                  Login
-                </button>
-              </div>
+              {/* Removed social logins and demo admin/user blocks */}
             </div>
           </div>
         </div>
