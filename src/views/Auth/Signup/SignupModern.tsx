@@ -5,10 +5,10 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import api, { extractApiError } from '@src/utils/axios_api'
 
 import whiteLogo from '@assets/images/logo-white.png'
 import backgroundImg from '@assets/images/others/auth.jpg'
-import google from '@assets/images/others/google.png'
 import { Eye, EyeOff } from 'lucide-react'
 
 const SignupModern: React.FC = () => {
@@ -19,8 +19,8 @@ const SignupModern: React.FC = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    name: '', // Pre-filled based on provided data
-    email: '', // Pre-filled based on provided data
+    phoneNumber: '',
+    email: '',
     password: '',
     confirmPassword: '',
   })
@@ -39,9 +39,9 @@ const SignupModern: React.FC = () => {
     setLoading(true)
     setError(null)
 
-    const { name, email, password, confirmPassword } = formData
+    const { firstName, lastName, phoneNumber, email, password, confirmPassword } = formData
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !phoneNumber || !email || !password || !confirmPassword) {
       setError('Please fill in all required fields')
       setLoading(false)
       return
@@ -60,30 +60,23 @@ const SignupModern: React.FC = () => {
     }
 
     try {
-      const res = await fetch('/api/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Something went wrong')
+      const payload = {
+        first_name: firstName,
+        last_name: lastName,
+        phone_number: phoneNumber,
+        email,
+        password,
       }
+
+      await api.post('/auth/signup', payload)
 
       router.push('/auth/signin-modern')
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message)
+      const { message, statusCode } = extractApiError(err)
+      if (statusCode === 409) {
+        setError(message || 'Email is already registered')
       } else {
-        setError('An unknown error occurred')
+        setError(message || 'Failed to sign up')
       }
     } finally {
       setLoading(false)
@@ -158,17 +151,17 @@ const SignupModern: React.FC = () => {
                   </div>
                   <div className="col-span-6">
                     <label
-                      htmlFor="userNameInput"
+                      htmlFor="phoneNumberInput"
                       className="form-label text-white/75">
-                      Username
+                      Phone Number
                     </label>
                     <input
-                      type="text"
-                      id="username"
-                      name="name"
+                      type="tel"
+                      id="phoneNumber"
+                      name="phoneNumber"
                       className="text-white border-none form-input bg-white/10 placeholder:text-white/75"
-                      placeholder="Enter your username"
-                      value={formData.name}
+                      placeholder="Enter your phone number"
+                      value={formData.phoneNumber}
                       onChange={handleChange}
                     />
                   </div>
@@ -266,31 +259,6 @@ const SignupModern: React.FC = () => {
                   </div>
                 </div>
               </form>
-
-              <div className="relative my-5 text-center text-white/75">
-                <p>OR</p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  className="w-full border-white/10 text-white/75 btn hover:bg-white/10 hover:text-white">
-                  <Image
-                    src={google}
-                    alt="Google logo"
-                    width={16}
-                    height={16}
-                    className="inline-block h-4 mx-2"
-                  />
-                  SignIn Via Google
-                </button>
-                <button
-                  type="button"
-                  className="w-full border-white/10 text-white/75 btn hover:bg-white/10 hover:text-white">
-                  <i className="ri-facebook-fill text-[20px] inline-block mx-2 size-4 text-primary-500"></i>
-                  SignIn Via Facebook
-                </button>
-              </div>
             </div>
           </div>
         </div>
