@@ -1,6 +1,6 @@
 import { FileListRecord } from '@src/dtos/apps/filemanager'
 import { AppDispatch } from '@src/slices/reducer'
-import api, { customDelete, customPut } from '@src/utils/axios_api'
+import api, { customDelete, customPut } from '@src/utils/axios_temp_api'
 import {
   LocalStorageRecord,
   createLocalStorage,

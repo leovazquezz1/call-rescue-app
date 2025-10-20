@@ -1,6 +1,6 @@
 import { Patients } from '@src/dtos'
 import { AppDispatch } from '@src/slices/reducer'
-import api, { customDelete, customPost, customPut } from '@src/utils/axios_api'
+import api, { customDelete, customPost, customPut } from '@src/utils/axios_temp_api'
 import {
   LocalStorageRecord,
   addLocalStorageRecord,

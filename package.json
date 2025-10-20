@@ -105,6 +105,7 @@
     "simplebar-react": "^3.2.6",
     "style-loader": "^4.0.0",
     "swiper": "^11.1.9",
+    "swr": "^2.3.6",
     "tailwind-colors": "^1.1.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^4.0.17",

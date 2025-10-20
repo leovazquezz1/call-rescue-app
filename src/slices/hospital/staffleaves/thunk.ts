@@ -1,6 +1,6 @@
 import { StaffLeaves } from '@src/dtos'
 import { AppDispatch } from '@src/slices/reducer'
-import api, { customPut } from '@src/utils/axios_api'
+import api, { customPut } from '@src/utils/axios_temp_api'
 import {
   LocalStorageRecord,
   createLocalStorage,

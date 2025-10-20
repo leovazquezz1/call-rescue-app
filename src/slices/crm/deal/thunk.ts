@@ -1,6 +1,6 @@
 import { DealItem } from '@src/dtos'
 import { AppDispatch } from '@src/slices/reducer'
-import api, { customDelete } from '@src/utils/axios_api'
+import api, { customDelete } from '@src/utils/axios_temp_api'
 import {
   createLocalStorage,
   deleteLocalStorageRecord,
