@@ -25,6 +25,13 @@ const SignupModern: React.FC = () => {
     confirmPassword: '',
   })
 
+  const normalizePhoneToE164 = (input: string) => {
+    const defaultCountryCode = (process.env.NEXT_PUBLIC_DEFAULT_COUNTRY_CODE || '1').replace(/\D/g, '')
+    const digits = input.replace(/\D/g, '')
+    if (!digits) return ''
+    return `+${defaultCountryCode}${digits}`
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({
@@ -47,6 +54,13 @@ const SignupModern: React.FC = () => {
       return
     }
 
+    const phoneDigitsOnly = phoneNumber.replace(/\D/g, '')
+    if (phoneDigitsOnly.length !== 10) {
+      setError('Please enter a valid phone number')
+      setLoading(false)
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       setLoading(false)
@@ -60,10 +74,11 @@ const SignupModern: React.FC = () => {
     }
 
     try {
+      const formattedPhone = normalizePhoneToE164(phoneNumber)
       const payload = {
         first_name: firstName,
         last_name: lastName,
-        phone_number: phoneNumber,
+        phone_number: formattedPhone,
         email,
         password,
       }
