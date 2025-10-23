@@ -167,6 +167,9 @@ export default function Layout({
     }
   }
 
+  /**
+   * NOTE: Auto-opens Settings modal after refresh on wide screens.
+   * This modal opened the settings screen for user configuration
   useEffect(() => {
     let timer: NodeJS.Timeout
 
@@ -177,6 +180,7 @@ export default function Layout({
         sessionStorage.setItem('isRefreshed', 'true')
       } else {
         if (window.innerWidth >= 768) {
+          // NOTE: Auto-opens Settings modal after refresh on wide screens. Remove if not desired.
           timer = setTimeout(() => {
             dispatch(changeSettingModalOpen(true))
           }, 500) // Delay to show modal after a short timeout
@@ -189,6 +193,8 @@ export default function Layout({
       sessionStorage.removeItem('isRefreshed')
     }
   }, [dispatch])
+  */
+
   const sidebarColors =
     (typeof document !== 'undefined' &&
       localStorage.getItem('data-sidebar-colors')) ||
