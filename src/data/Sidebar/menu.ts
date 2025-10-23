@@ -1003,6 +1003,13 @@ const menu: MegaMenu[] = [
             children: [],
           },
           {
+            title: 'Modern',
+            lang: 'pe-modern',
+            link: '/auth/successful-payment',
+            dropdownPosition: null,
+            children: [],
+          },
+          {
             title: 'Creative',
             lang: 'pe-creative',
             link: '/auth/successful-password-creative',
