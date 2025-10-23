@@ -2,11 +2,12 @@
 
 import React, { useEffect, useRef } from 'react'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import backgroundImg from '@assets/images/others/auth.jpg'
 import { MailOpen } from 'lucide-react'
 import { toast } from 'react-toastify'
+import api, { extractApiError } from '@src/utils/axios_api'
 
 interface OTPFormProps {
   formId: string
@@ -17,6 +18,11 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
   const submitButtonRef = useRef<HTMLButtonElement>(null)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const phoneNumber = searchParams.get('phone_number')
+  const email = searchParams.get('email') || ''
+  const userId = searchParams.get('client_reference_id') || ''
+  const [isLoading, setIsLoading] = React.useState(false)
 
   useEffect(() => {
     const form = formRef.current
@@ -89,7 +95,7 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
     }
   }, [formId])
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     const form = formRef.current
@@ -101,10 +107,32 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
     const otp = inputs.map((input) => input.value).join('')
 
     if (otp.length !== 6) {
-      toast.error('Please enter a valid OTP')
+      toast.error('Please enter the 6-digit code')
       return
-    } else {
-      router.push('/auth/reset-password-modern')
+    }
+    if (!phoneNumber) {
+      toast.error('Missing phone number for verification')
+      return
+    }
+
+    try {
+      setIsLoading(true)
+      await api.post('/auth/verify-sms', {
+        phone_number: phoneNumber,
+        code: otp,
+      })
+
+      const stripeUrl = new URL('https://buy.stripe.com/test_fZu28k5Fg4P5bMW5az1wY00');
+      stripeUrl.searchParams.append('locked_prefilled_email', email);
+      stripeUrl.searchParams.append('client_reference_id', userId);
+      
+      router.push(stripeUrl.toString());
+
+    } catch (err) {
+      const { message } = extractApiError(err)
+      toast.error(message || 'Verification failed')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -126,7 +154,7 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
                 OTP Verification
               </h4>
               <p className="mb-5 text-center text-white/75">
-                We&apos;re sent a code to <b>sophiamia@example.com</b>
+                We&apos;ve sent a code to <b>{phoneNumber || 'your phone'}</b>
               </p>
               <form id={formId} onSubmit={handleSubmit} ref={formRef}>
                 <div className="flex items-center justify-center gap-3">
@@ -137,6 +165,7 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
                       className="text-2xl font-extrabold text-center text-white border border-transparent rounded-sm outline-hidden appearance-none size-9 sm:size-12 md:size-14 bg-white/10 focus:bg-white/10"
                       pattern="\d*"
                       maxLength={1}
+                      disabled={isLoading}
                     />
                   ))}
                 </div>
@@ -144,8 +173,9 @@ const TwoStepVerificationModern: React.FC<OTPFormProps> = ({ formId }) => {
                   <button
                     type="submit"
                     className="w-full btn btn-primary"
-                    ref={submitButtonRef}>
-                    Reset Password
+                    ref={submitButtonRef}
+                    disabled={isLoading}>
+                    {isLoading ? 'Verifying...' : 'Verify Code'}
                   </button>
                 </div>
               </form>
