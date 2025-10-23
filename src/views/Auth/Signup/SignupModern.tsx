@@ -83,9 +83,16 @@ const SignupModern: React.FC = () => {
         password,
       }
 
-      await api.post('/auth/signup', payload)
+      var user = await api.post('/auth/signup', payload)
+      var userId = user.data.data.user_id
 
-      router.push('/auth/signin-modern')
+      var url = "/auth/two-step-verification-modern"
+      url += `?phone_number=${formattedPhone}`
+      url += `&email=${email}`
+      url += `&client_reference_id=${userId}`
+
+      router.push(url)
+
     } catch (err) {
       const { message, statusCode } = extractApiError(err)
       if (statusCode === 409) {
@@ -164,7 +171,7 @@ const SignupModern: React.FC = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-12">
                     <label
                       htmlFor="phoneNumberInput"
                       className="form-label text-white/75">
@@ -180,7 +187,7 @@ const SignupModern: React.FC = () => {
                       onChange={handleChange}
                     />
                   </div>
-                  <div className="col-span-6">
+                  <div className="col-span-12">
                     <label
                       htmlFor="emailInput"
                       className="form-label text-white/75">
